@@ -1,0 +1,26 @@
+{
+  "name": "p2p-collaborate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raz-lior/p2p-collaborate.git"
+  },
+  "keywords": [
+    "p2p",
+    "chat"
+  ],
+  "author": "Lior Raz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/raz-lior/p2p-collaborate/issues"
+  },
+  "homepage": "https://github.com/raz-lior/p2p-collaborate#readme",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}
