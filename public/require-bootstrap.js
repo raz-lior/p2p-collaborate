@@ -14,6 +14,10 @@ requirejs.config({
         name:'FileSaver.js',
         location: 'bower_components/file-saver/',
         main: 'FileSaver'
+    },{
+        name:'peerjs',
+        location: 'bower_components/peerjs/',
+        main: 'peer.min' 
     }]
 
 });
