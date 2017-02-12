@@ -41,5 +41,12 @@ app.put('/session/:id', function(req,res){
 	}
 });
 
+app.get('/session', function(req,res){
+	// return a list of available sessions, the sessions should be filtered based on the user credentials
+	let chats = chat_sessions.get_sessions();
+
+	res.send(chats);
+});
+
 
 app.listen(3000);

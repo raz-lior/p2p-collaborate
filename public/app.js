@@ -1,6 +1,7 @@
 define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
   var messageEntries = [];
+  var chat_sessions = [];
 
   $('#sessionCreator').click(setupChatSession);
 
@@ -10,6 +11,30 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
   $('#sessionLoader').change(loadSession);
 
+  get_list_of_sessions();
+
+  function get_list_of_sessions(){
+    $.get('/session')
+      .done(function(data){
+        chat_sessions = data;
+
+        var session_list_container = $('#session_list ul');
+        for(var i=0; i < chat_sessions.length; i++){
+          
+          var chat_list_html = '<li><button>' + chat_sessions[i].name + '</button></li>';
+          var chat_list_elm = $(chat_list_html);
+          chat_list_elm.find('button').click(joinChatSession);
+          chat_list_elm.find('button').data('host-id',chat_sessions[i].host);
+
+          session_list_container.append(chat_list_elm);
+        }
+
+        
+      })
+      .fail(function(){
+
+      });
+  }
 
   function setupChatSession(){
     $('#sessionSetup').show();
@@ -59,10 +84,40 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
       
     });
+
+    peer.on('connection', function(conn) {
+
+      conn.on('open', function() {
+        // Receive messages
+        conn.on('data', function(data) {
+          console.log('Received', data);
+        });
+
+        
+      });
+
+    });
   }
 
   function joinChatSession(){
+    var host_id = $(this).data('host-id');
+    
+    var peer = new Peer({key: 'lwjd5qra8257b9'});
 
+    peer.on('open', function(peer_id) {
+      console.log('peer open');
+      var conn = peer.connect(host_id);
+
+      conn.on('open', function() {
+        console.log('conn open');
+        // Receive messages
+        conn.on('data', function(data) {
+          console.log('Received', data);
+        });
+
+        conn.send('Hello!');
+      });
+    });
   }
 
   function loadSession(event){
