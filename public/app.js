@@ -1,6 +1,6 @@
-define(['jquery','chat-host','chat-client','peerjs'],function   ($, chat_host, chat_client) {
+define(['jquery','chat-host','chat-client'],function   ($, chat_host, chat_client) {
 
-	
+	var chatClient;
 	var chat_sessions = [];
 
 	$('#sessionCreator').click(setupChatSession);
@@ -10,6 +10,9 @@ define(['jquery','chat-host','chat-client','peerjs'],function   ($, chat_host, c
 	$('#sessionExporter').click(exportSession);
 
 	$('#sessionLoader').change(loadSession);
+	$('#messageSubmitter').click(submitMessage);
+
+	
 
 	get_list_of_sessions();
 
@@ -18,7 +21,7 @@ define(['jquery','chat-host','chat-client','peerjs'],function   ($, chat_host, c
 			.done(function(data){
 				chat_sessions = data;
 
-				var session_list_container = $('#session_list ul');
+				var session_list_container = $('#sessionList ul');
 				for(var i=0; i < chat_sessions.length; i++){
 					
 					var chat_list_html = '<li><button>' + chat_sessions[i].name + '</button></li>';
@@ -49,7 +52,15 @@ define(['jquery','chat-host','chat-client','peerjs'],function   ($, chat_host, c
 
 		var name = $('#sessionName').val();
 
-		chat_host.startChatSession(name, startSessionSucceed, startSessionFailed);
+		chat_host.startChatSession(name, handleIncomingMessage, startSessionSucceed, startSessionFailed);
+
+		chatClient = chat_host;
+	}
+
+	function handleIncomingMessage(data){
+		var message_elm = $('#chatSession #messages');
+
+		message_elm.append('<div class"message">' + data + '</div>');
 	}
 
 	function startSessionSucceed(){
@@ -67,7 +78,23 @@ define(['jquery','chat-host','chat-client','peerjs'],function   ($, chat_host, c
 	function joinChatSession(){
 		var host_id = $(this).data('host-id');
 		
-		chat_client.joinChatSession(host_id);
+		chat_client.joinChatSession(host_id, handleIncomingMessage);
+
+		chatClient = chat_client;
+	}
+
+	function submitMessage(){
+		var message = $('#speaker').val();
+
+		chatClient.submitMessage(message,messageSent, messageFailed);
+	}
+
+	function messageSent(){
+		$('#speaker').val('');
+	}
+
+	function messageFailed(err){
+		console.log(err);
 	}
 
 	function loadSession(event){

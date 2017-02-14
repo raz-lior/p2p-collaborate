@@ -1,8 +1,9 @@
 define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
+	var conn;
 	var messageEntries = [];
 
-	function startChatSession(name, done, fail){
+	function startChatSession(name, msg_handler, done, fail){
 		// var message = {
 		//   recieved: '1/13/2017 12:34',
 		//   content: 'Hello',
@@ -33,12 +34,13 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
 			});
 
-			peer.on('connection', function(conn) {
-
+			peer.on('connection', function(new_conn) {
+				conn = new_conn;
 				conn.on('open', function() {
 				// Receive messages
 					conn.on('data', function(data) {
-						console.log('Received', data);
+						msg_handler(data);
+						//TODO: send the data to the rest of the clients
 					});
 				});
 			});
@@ -67,10 +69,19 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 		saveAs(blob, "session.dat");
 	}
 
+	function submitMessage(message, done, fail){
+		if(!conn)
+			fail('conn is not initialized');
+		
+		conn.send(message);
+		done();
+	}
+
   return {
   	startChatSession: startChatSession,
   	exportSession: exportSession,
-  	loadSession: loadSession
+  	loadSession: loadSession,
+  	submitMessage: submitMessage
   }
 
 });
