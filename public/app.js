@@ -1,16 +1,17 @@
-define(['jquery','chat-host','chat-client'],function   ($, chat_host, chat_client) {
+define(['jquery','chat-host','chat-client', 'chat-room'],function   ($, chat_host, chat_client, ChatRoom) {
 
+	var chat_room;
 	var chatClient;
 	var chat_sessions = [];
 
-	$('#sessionCreator').click(setupChatSession);
+	$('#sessionCreator').click(setup_chat_session);
 
-	$('#sessionStarter').click(startChatSession);
+	$('#sessionStarter').click(start_chat_session);
 
-	$('#sessionExporter').click(exportSession);
+	$('#sessionExporter').click(export_session);
 
-	$('#sessionLoader').change(loadSession);
-	$('#messageSubmitter').click(submitMessage);
+	$('#sessionLoader').change(load_session);
+	$('#messageSubmitter').click(submit_message);
 
 	
 
@@ -26,7 +27,7 @@ define(['jquery','chat-host','chat-client'],function   ($, chat_host, chat_clien
 					
 					var chat_list_html = '<li><button>' + chat_sessions[i].name + '</button></li>';
 					var chat_list_elm = $(chat_list_html);
-					chat_list_elm.find('button').click(joinChatSession);
+					chat_list_elm.find('button').click(join_chat_session);
 					chat_list_elm.find('button').data('host-id',chat_sessions[i].host);
 
 					session_list_container.append(chat_list_elm);
@@ -36,11 +37,11 @@ define(['jquery','chat-host','chat-client'],function   ($, chat_host, chat_clien
 			.fail(function(){});
 	}
 
-	function setupChatSession(){
+	function setup_chat_session(){
 		$('#sessionSetup').show();
 	}
 
-	function startChatSession(){
+	function start_chat_session(){
 		// var message = {
 		//   recieved: '1/13/2017 12:34',
 		//   content: 'Hello',
@@ -52,62 +53,60 @@ define(['jquery','chat-host','chat-client'],function   ($, chat_host, chat_clien
 
 		var name = $('#sessionName').val();
 
-		chat_host.startChatSession(name, handleIncomingMessage, startSessionSucceed, startSessionFailed);
-
-		chatClient = chat_host;
+		chat_room = new ChatRoom();
+		chat_room.create_room(name, handle_incoming_message, start_session_succeed, start_session_failed);
 	}
 
-	function handleIncomingMessage(data){
+	function handle_incoming_message(data){
 		var message_elm = $('#chatSession #messages');
 
 		message_elm.append('<div class"message">' + data + '</div>');
 	}
 
-	function startSessionSucceed(){
+	function start_session_succeed(){
 		$('#sessionSetup').hide();
 		$('#sessionLoader').show();
 		$('#sessionExporter').show();
 		$('#inviteCreator').show();
 	}
 
-	function startSessionFailed(err){
+	function start_session_failed(err){
 		//TODO: popup an error message for the client
 		console.log(err);
 	}
 
-	function joinChatSession(){
+	function join_chat_session(){
 		var host_id = $(this).data('host-id');
-		
-		chat_client.joinChatSession(host_id, handleIncomingMessage);
 
-		chatClient = chat_client;
+		chat_room = new ChatRoom();
+		chat_room.join_room(host_id, handle_incoming_message);
 	}
 
-	function submitMessage(){
+	function submit_message(){
 		var message = $('#speaker').val();
 
-		chatClient.submitMessage(message,messageSent, messageFailed);
+		chat_room.send_message(message,message_sent, message_failed);
 	}
 
-	function messageSent(){
+	function message_sent(){
 		$('#speaker').val('');
 	}
 
-	function messageFailed(err){
+	function message_failed(err){
 		console.log(err);
 	}
 
-	function loadSession(event){
+	function load_session(event){
 		var file = event.target.files[0];
 		if (!file) {
 			return;
 		}
 
-		chat_host.loadSession(file);
+		chat_room.load_chat_data(file);
 	}
 
-	function exportSession(){
-		chat_host.exportSession();
+	function export_session(){
+		chat_room.export_chat_data();
 	}
 });
 

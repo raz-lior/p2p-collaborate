@@ -1,27 +1,40 @@
 define(['peerjs'], function() {
 	var conn;
+	var peer;
+	var is_peer_open = false;
 
-	function joinChatSession(host_id, msg_handler){
-		
-		var peer = new Peer({key: 'lwjd5qra8257b9'});
+	function ChatClient(){
 
+	}
+
+	ChatClient.prototype.open_peer_connection = function(connection_opened){
+		peer = new Peer({key: 'lwjd5qra8257b9'});
 		peer.on('open', function(peer_id) {
-			console.log('peer open');
-			conn = peer.connect(host_id);
+			is_peer_open = true;
+			connection_opened();
+		});	
+	}
 
-			conn.on('open', function() {
-				console.log('conn open');
-				// Receive messages
-				conn.on('data', function(data) {
-					msg_handler(data);
-				});
+	ChatClient.prototype.join_chat_session = function(host_id, msg_handler){
 
-				conn.send('Hello!');
+		if(!is_peer_open)
+			throw new Error('peer connection must be open before calling this function');
+		
+		conn = peer.connect(host_id);
+		var data_handler = this.handle_received_data.bind(this);
+		conn.on('open', function() {
+			// Receive messages
+			conn.on('data', function(data) {
+				data_handler(data, msg_handler);
 			});
 		});
 	}
 
-	function submitMessage(message, done, fail){
+	ChatClient.prototype.handle_received_data = function(data, next_handler){
+		next_handler(data);
+	}
+
+	ChatClient.prototype.submit_message = function(message, done, fail){
 		if(!conn)
 			fail('conn is not initialized');
 		
@@ -29,9 +42,6 @@ define(['peerjs'], function() {
 		done();
 	}
 
-	return {
-		joinChatSession: joinChatSession,
-		submitMessage: submitMessage
-	}
+	return ChatClient;
 
 });

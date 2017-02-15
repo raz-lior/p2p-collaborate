@@ -1,9 +1,16 @@
-define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
+define(['jquery','FileSaver.js','chat-client','peerjs'],function   ($, saveAs, ChatClient) {
 
 	var conn;
 	var messageEntries = [];
 
-	function startChatSession(name, msg_handler, done, fail){
+	function ChatHost(){
+
+	}
+
+	ChatHost.prototype = new ChatClient();
+	ChatHost.prototype.constructor = ChatHost;
+
+	ChatHost.prototype.start_chat_session = function(name, msg_handler, done, fail){
 		// var message = {
 		//   recieved: '1/13/2017 12:34',
 		//   content: 'Hello',
@@ -12,6 +19,8 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 
 		// messageEntries.push(message);
 		// console.log(messageEntries);
+
+		var data_handler = this.distibute_received_message.bind(this);
 
 		$.post('/session/' + name)
 		.done(function(chat_session){
@@ -39,8 +48,8 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 				conn.on('open', function() {
 				// Receive messages
 					conn.on('data', function(data) {
-						msg_handler(data);
-						//TODO: send the data to the rest of the clients
+						data_handler(data, msg_handler);
+						
 					});
 				});
 			});
@@ -50,7 +59,12 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 		});
 	}
 
-	function loadSession(file){
+	ChatHost.prototype.distibute_received_message = function(data, next_handler){
+		//TODO: send the data to the rest of the clients
+		next_handler(data);
+	}
+
+	ChatHost.prototype.load_session_data = function(file){
 		if (!file) {
 			return;
 		}
@@ -63,13 +77,13 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 		reader.readAsText(file);
 	}
 
-	function exportSession(){
+	ChatHost.prototype.export_session_data = function(){
 
 		var blob = new Blob([JSON.stringify(messageEntries)], {type: "text/plain;charset=utf-8"});
 		saveAs(blob, "session.dat");
 	}
 
-	function submitMessage(message, done, fail){
+	ChatHost.prototype.submit_message = function(message, done, fail){
 		if(!conn)
 			fail('conn is not initialized');
 		
@@ -77,11 +91,6 @@ define(['jquery','FileSaver.js','peerjs'],function   ($, saveAs) {
 		done();
 	}
 
-  return {
-  	startChatSession: startChatSession,
-  	exportSession: exportSession,
-  	loadSession: loadSession,
-  	submitMessage: submitMessage
-  }
+  return ChatHost;
 
 });
