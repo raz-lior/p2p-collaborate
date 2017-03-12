@@ -36,7 +36,9 @@ exports.update_session = function(id,new_data){
 	for(let prop in new_data){
 		chat_session[prop] = new_data[prop];
 	}
-
-
 };
+
+exports.get_sessions = function(){
+	return chat_sessions;
+}
 
