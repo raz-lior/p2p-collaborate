@@ -1,0 +1,21 @@
+#sessionExporter {
+	display:none;
+}
+
+#sessionLoader {
+	display: none;
+}
+
+#inviteCreator {
+	display: none;
+}
+
+/* Session Setup window */
+#sessionSetup {
+	display: none;
+	width:250px;
+	height: 100px;
+	margin:auto;
+}
+
+/* end of Session Setup window */

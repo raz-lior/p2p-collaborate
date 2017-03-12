@@ -2,13 +2,30 @@
 <html>
   <head>
 	<script data-main="require-bootstrap" src="bower_components/requirejs/require.js"></script>
+  <link rel="stylesheet" href="styles/app.css" type="text/css">
   </head>
   <body>
-
   	<div>
-  		<button id="sessionStarter">Start</button>
+  		<button id="sessionCreator">New Session</button>
   		<button id="sessionExporter">Export</button>
+      <button id="inviteCreator">Invite</button>
   		<input type="file" id="sessionLoader">
   	</div>
+    <div id="sessionList">
+      <ul>
+      </ul>
+    </div>
+    <div id="chatSession">
+      <div id="messages">
+      </div>
+      <div id="speakerBox">
+        <input type="text" id="speaker">
+        <button id="messageSubmitter">Send</button>
+      </div>
+    </div>
+    <div id="sessionSetup">
+      <input type="text" id="sessionName">
+      <button id="sessionStarter">Start</button>
+    </div>
   </body>
  </html>
